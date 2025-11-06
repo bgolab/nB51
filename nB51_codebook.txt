@@ -1,5 +1,7 @@
 Programming Hints(ideas of language improvement):
 
+NOTE: Remember to add at least 100ms delay when pasting several lines of codes to give some time to the interpreter to accepts copied data
+
 #SW: END: separate from subroutines and main prg
 
 #SW: gettick(): 
@@ -31,7 +33,7 @@ next k
 -v0.1b1+: spoke 128, 7 print speek(128) (3 lowest bit set and read of the P0)
 
 #HW: SP 
--v0.1b1+: print speek(129)
+-v0.1b1: print speek(129)
 -v0.1b2+: print peek(0xc81)
 
 #HW: TL1: 
@@ -39,7 +41,7 @@ next k
 -v0.1b2+: print peek(0xc8b)
 
 #HW: watchdog reboot (the program still kept in the memory - check w/ 'c' command)
--v0.1b1+: spoke 193, 32 
+-v0.1b1: spoke 193, 32 
 -v0.1b2+: poke 0xcc1, 32
 
 #HW: OUT(LED): P5.5/P5.4-charlie plexing; AIAPP-generated-code:P5M0|=0x30; P5M1&=~0x30(P5M0=0xCA;P5M1=0xC9;P5=0xc8); 
