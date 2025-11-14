@@ -170,7 +170,7 @@ r
 0
 180
 
--v0.3b1 - hw division - wrong results?
+-v0.3b1 - hw division
  MD3  0xfcf0
  MD2  0xfcf1
  MD1  0xfcf2
