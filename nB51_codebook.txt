@@ -12,15 +12,23 @@ NOTE: Remember to add at least 100ms delay when pasting several lines of codes t
 
 #SW: non-blocking wait: 
 -v0.1b2+: a=gettick(0) wait: if gettick()<1000 then goto wait endif (cannot use func like gettick() w/o var!)
+-v0.3b1+: settick 0 wait: if gettick()<1000 then goto wait endif
 
 #HW: W/R XDATA (LUT)
 -v0.1b2+: poke 999, 17 print peek(999)
+-v0.3b1+: xpoke HS, 17 print xpeek(HS)
 
-#HW: W/R XDATA HEAP space access (SYS-MEM @0xf00 contain HEAP start mem addr)
--v0.2b1+: heap=peek(0xf00) poke heap,0x7 print peek(heap)
+#HW: W/R XDATA HEAP space access
+-v0.2b1+: heap=peek(0xf00) poke heap,0x7 print peek(heap) // (SYS-MEM @0xf00 contain HEAP start mem addr)
+-v0.3b1+: xpoke HS, 17 print xpeek(HS)
 
 #HW: 64 0x8e SW 		(AUXR.6=1: 1T for UART; baudrate change on the fly 9600->115.2)
 -v0.1b2+: ?
+-v0.3b1+: ?
+
+#HW: AUXR
+-v0.2b1: print peek(0xc8e)
+-v0.3b1+: print speek(0x8e)
 
 #HW: INKEY simulation (probably work because RI is clear periodically since v0.2b1, 0xc99 is remapped sbuff addr to sfr space for peek/poke mem-map)
 -v0.2b1+ 
@@ -29,20 +37,30 @@ print peek(0xc99)
 pause 100
 next k
 
+-v0.3b1+: 
+for k=1 to 100
+print speek(0x99)
+pause 100
+next k
+
 #HW: W/R SFR(P0): 
 -v0.1b1+: spoke 128, 7 print speek(128) (3 lowest bit set and read of the P0)
+-v0.3b1+: spoke 128, 7 print speek(128) (3 lowest bit set and read of the P0)
 
 #HW: SP 
 -v0.1b1: print speek(129)
 -v0.1b2+: print peek(0xc81)
+-v0.3b1+: print speek(0x81)
 
 #HW: TL1: 
 -v0.1b1+: print speek(139)
 -v0.1b2+: print peek(0xc8b)
+-v0.3b1+: print speek(0x8b)
 
 #HW: watchdog reboot (the program still kept in the memory - check w/ 'c' command)
 -v0.1b1: spoke 193, 32 
 -v0.1b2+: poke 0xcc1, 32
+-v0.3b1+: spoke 0xc1, 32
 
 #HW: OUT(LED): P5.5/P5.4-charlie plexing; AIAPP-generated-code:P5M0|=0x30; P5M1&=~0x30(P5M0=0xCA;P5M1=0xC9;P5=0xc8); 
 -port-cfg: 			0xCA SR 0x30 | 0xCA SWAP SW 0xC9 SR 0x30 ~ & 0xC9 SWAP SW 
@@ -65,11 +83,11 @@ spoke 200,0
 -----------------------------------------------------
 -v0.1b2 - no speek/spoke, hex, remapped sfr addresses to 0xc00+sfr (reversed polarity)
 cfg1=0xcca
-cfg2=0xcc9
 a=peek(cfg1)
 b=or(a,0x30)
 poke cfg1,b
 
+cfg2=0xcc9
 a=peek(cfg2)
 c=not(0x30)
 b=and(a,c)
@@ -80,5 +98,35 @@ for k=1 to 10
 poke p5,0x20
 pause 500
 poke p5,0
+pause 500
+next k
+
+-v0.1b2 - no speek/spoke, hex, remapped sfr addresses to 0xc00+sfr (reversed polarity)
+c=0xcca
+poke c,or(peek(c),0x30)
+
+c=0xcc9
+poke c,and(peek(c),not(0x30))
+
+p=0xcc8
+for k=1 to 10 
+poke p,0x20
+pause 500
+poke p,0
+pause 500
+next k
+
+-v0.3b1 - introduced SPEEK/SPOKE/XPEEK/XPOKE
+c=0xca
+spoke c,or(speek(c),0x30)
+
+c=0xc9
+spoke c,and(speek(c),not(0x30))
+
+p=0xc8
+for k=1 to 10 
+spoke p,0x20
+pause 500
+spoke p,0
 pause 500
 next k
