@@ -22,9 +22,8 @@ NOTE: Remember to add at least 100ms delay when pasting several lines of codes t
 -v0.2b1+: heap=peek(0xf00) poke heap,0x7 print peek(heap) // (SYS-MEM @0xf00 contain HEAP start mem addr)
 -v0.3b1+: xpoke HS, 17 print xpeek(HS)
 
-#HW: 64 0x8e SW 		(AUXR.6=1: 1T for UART; baudrate change on the fly 9600->115.2)
--v0.1b2+: ?
--v0.3b1+: ?
+#HW:AUXR.6=1: 1T for UART; baudrate change on the fly from 9600 to 115.2
+-v0.3b1+: spoke 0x8e, 64
 
 #HW: AUXR
 -v0.2b1: print peek(0xc8e)
