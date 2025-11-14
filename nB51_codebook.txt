@@ -29,7 +29,7 @@ NOTE: Remember to add at least 100ms delay when pasting several lines of codes t
 -v0.2b1: print peek(0xc8e)
 -v0.3b1+: print speek(0x8e)
 
-#HW: INKEY simulation (probably work because RI is clear periodically since v0.2b1, 0xc99 is remapped sbuff addr to sfr space for peek/poke mem-map)
+#HW: INKEY simulation (probably work because RI is clear periodically since v0.2b1, 0xc99 is remapped sbuff addr to SFR space for peek/poke mem-map)
 -v0.2b1+ 
 for k=1 to 100
 print peek(0xc99)
@@ -80,7 +80,7 @@ spoke 200,32
 pause 500
 spoke 200,0
 -----------------------------------------------------
--v0.1b2 - no speek/spoke, hex, remapped sfr addresses to 0xc00+sfr (reversed polarity)
+-v0.1b2 - no speek/spoke, hex, remapped SFR addresses to 0xc00+SFR (reversed polarity)
 cfg1=0xcca
 a=peek(cfg1)
 b=or(a,0x30)
@@ -100,7 +100,7 @@ poke p5,0
 pause 500
 next k
 
--v0.1b2 - no speek/spoke, hex, remapped sfr addresses to 0xc00+sfr (reversed polarity)
+-v0.1b2 - no speek/spoke, hex, remapped SFR addresses to 0xc00+SFR (reversed polarity)
 c=0xcca
 poke c,or(peek(c),0x30)
 
@@ -129,3 +129,91 @@ pause 500
 spoke p,0
 pause 500
 next k
+
+#FW: XSFR
+-v0.3b1 - hw multiply (simplified - small numbers)
+ MD3  0xfcf0
+ MD2  0xfcf1
+ MD1  0xfcf2
+ MD0  0xfcf3
+ MD5  0xfcf4
+ MD4  0xfcf5
+ ARCON  0xfcf6
+ OPCON  0xfcf7
+ sfr P_SW2 = 0xBA;
+ ---
+P_SW2 |= 0x80; 				// Access to the extended register xsfr
+MD1 = dat1; 				//dat1 is given by user
+MD5 = dat2; 				//dat2 is given by user
+ARCON = 4 << 5; 			//16 bit*16 bit, multiply mode
+OPCON = 1; 					//start calculation
+while((OPCON & 1) != 0); 	//wait for the calculation complement
+res = MD3U32; 				//32 bit result
+---
+16bit(MD1...MD0, little endian) * 16bit(MD5...MD4, little endian)=32bit(MD3...MD0, little endian)
+---
+PSW2=0xBA
+MD1=0xfcf2
+MD5=0xfcf4
+MD3=0xfcf0
+ARCN=0xfcf6
+OPCN=0xfcf7
+SPOKE PSW2, OR( SPEEK(PSW2), 0x80)
+XPOKE MD1, 12
+XPOKE MD5, 15
+XPOKE ARCN, 128
+XPOKE OPCN, 1
+WAIT: IF AND(SPEEK(OPCN),1)<>0 THEN PRINT "!" GOTO WAIT ENDIF
+PRINT XPEEK(MD3)
+PRINT XPEEK(MD3+1)
+r
+0
+180
+
+-v0.3b1 - hw division - wrong results?
+ MD3  0xfcf0
+ MD2  0xfcf1
+ MD1  0xfcf2
+ MD0  0xfcf3
+ MD5  0xfcf4
+ MD4  0xfcf5
+ ARCON  0xfcf6
+ OPCON  0xfcf7
+ sfr P_SW2 = 0xBA;
+ ---
+P_SW2 |= 0x80; 				// Access to the extended register xsfr
+MD3U32 = dat1; 				//dat1 is given by user
+MD5U16 = data2; 			//dat2 is given by user
+ARCON = 6 << 5; 			//32 bit/16bit, division mode
+OPCON = 1; 					//start calculation
+while((OPCON & 1) != 0); 	// wait for the calculation complement
+res = MD3U32; 				//32-bit quotient, 16-bit remainder in MD5
+---
+32bit(MD3...MD0, little endian)/16bit(MD5...MD4, little endian)=32bit(MD3...MD0-result, MD5-MD4-remainder, little endian)
+---
+PSW2=0xBA
+MD5=0xfcf4
+MD4=0xfcf5
+MD3=0xfcf0
+MD2=0xfcf1
+MD1=0xfcf2
+MD0=0xfcf3
+ARCN=0xfcf6
+OPCN=0xfcf7
+SPOKE PSW2, OR( SPEEK(PSW2), 0x80)
+XPOKE MD3, 130
+XPOKE MD2, 0
+XPOKE MD1, 0
+XPOKE MD0, 0
+XPOKE MD5, 2
+XPOKE MD4, 0
+XPOKE ARCN, 192
+XPOKE OPCN, 1
+WAIT: IF SPEEK(OPCN)<>0 THEN GOTO WAIT ENDIF
+PRINT XPEEK(MD3)
+PRINT XPEEK(MD2)
+PRINT XPEEK(MD5)
+
+
+
+
