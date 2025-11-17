@@ -1,4 +1,4 @@
-Programming Hints(ideas of language improvement):
+Programming Hints:
 
 NOTE: Remember to add at least 100ms delay when pasting several lines of codes to give some time to the interpreter to accepts copied data
 
@@ -130,7 +130,7 @@ spoke p,0
 pause 500
 next k
 
-#FW: XSFR
+#HW: XSFR
 -v0.3b1 - hw multiply (simplified - small numbers)
  MD3  0xfcf0
  MD2  0xfcf1
@@ -214,6 +214,19 @@ PRINT XPEEK(MD3)
 PRINT XPEEK(MD2)
 PRINT XPEEK(MD5)
 
+==============
+#SW - program structure with subroutines at the beginning
+GOTO MAIN
+SA: PRINT "A!" RETURN
+SB: PRINT "B!" RETURN
+MAIN:
+GOSUB SA
+GOSUB SB
 
-
+#SW - program structure with subroutines at the end of th eprogram ('END' command to separate
+GOSUB SA
+GOSUB SB
+END
+SA: PRINT "A!" RETURN
+SB: PRINT "B!" RETURN
 
